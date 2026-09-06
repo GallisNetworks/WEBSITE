@@ -15,6 +15,47 @@
       if (event.key === 'Escape' && menu.getAttribute('aria-expanded') === 'true') { closeMenu(); menu.focus(); }
     });
   }
+  const tabs = Array.from(document.querySelectorAll('[data-tab]'));
+  const panels = Array.from(document.querySelectorAll('[data-panel]'));
+  if (tabs.length && panels.length) {
+    const tabList = document.querySelector('.service-tabs');
+    tabList.setAttribute('role', 'tablist');
+    function activate(id, focus = false) {
+      tabs.forEach((tab) => {
+        const selected = tab.dataset.tab === id;
+        tab.setAttribute('aria-selected', String(selected));
+        tab.tabIndex = selected ? 0 : -1;
+        if (selected && focus) tab.focus();
+      });
+      panels.forEach((panel) => { panel.hidden = panel.dataset.panel !== id; });
+    }
+    tabs.forEach((tab, index) => {
+      tab.setAttribute('role', 'tab');
+      tab.setAttribute('aria-controls', 'service-' + tab.dataset.tab);
+      tab.addEventListener('click', (event) => { event.preventDefault(); activate(tab.dataset.tab); });
+      tab.addEventListener('keydown', (event) => {
+        let next = index;
+        if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
+        else if (event.key === 'ArrowLeft') next = (index + tabs.length - 1) % tabs.length;
+        else if (event.key === 'Home') next = 0;
+        else if (event.key === 'End') next = tabs.length - 1;
+        else if (event.key !== ' ') return;
+        event.preventDefault(); activate(tabs[next].dataset.tab, true);
+      });
+    });
+    panels.forEach((panel) => {
+      panel.setAttribute('role', 'tabpanel');
+      panel.setAttribute('aria-labelledby', 'tab-' + panel.dataset.panel);
+      panel.tabIndex = 0;
+    });
+    function selectHash() {
+      const match = panels.find((panel) => '#' + panel.id === window.location.hash);
+      if (match) activate(match.dataset.panel);
+    }
+    activate(tabs[0].dataset.tab);
+    selectHash();
+    window.addEventListener('hashchange', selectHash);
+  }
   const year = document.querySelector('#year');
   if (year) year.textContent = String(new Date().getFullYear());
   const form = document.querySelector('#enquiry-form');
@@ -25,6 +66,9 @@
   const property = document.querySelector('#property');
   document.querySelectorAll('[data-property]').forEach((link) => link.addEventListener('click', () => {
     property.value = link.dataset.property;
+  }));
+  document.querySelectorAll('[data-service]').forEach((link) => link.addEventListener('click', () => {
+    document.querySelector('#service').value = link.dataset.service;
   }));
   const ready = config.enquiriesEnabled === true && config.privacyReviewed === true &&
     /^[a-zA-Z0-9]{6,32}$/.test(config.formspreeId || '') &&

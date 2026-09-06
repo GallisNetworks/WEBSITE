@@ -11,17 +11,17 @@ This branch is a review draft, not a live release. Do not merge until the outsta
 - GitHub's repository API confirmed has_pages=true and the connected GallisNetworks account's admin/push permissions. The connector did not expose the Pages settings endpoint, so the configured publishing branch/folder could not be independently read. Check Settings → Pages before merging; preserve its current source rather than selecting a new one.
 - Home.html, cookie-policy.html and the old sample blog URLs are retained as redirects with plain links for compatibility. The old blog was placeholder content, not a claimed project portfolio.
 
-## Confirmed current offering
+## Brand and service direction — updated owner brief
 
-Owner update: Namecheap manages the domain. Existing email hosting is still unknown. DNS delegation has not been independently checked; do not assume the registrar hosts the authoritative zone.
+Restore the existing motto: “Resilient solutions for secure networking”. The owner wants the established business identity and broad service coverage retained, with no “small projects” or evening/weekend framing in public copy.
 
-The business currently takes on small remote projects, including websites, during evenings and weekends. The website now promotes new websites, existing website updates and small remote business projects assessed individually. Farms and rural businesses remain a target audience alongside sole traders, small businesses and individuals.
+The owner has requested networking, cybersecurity, cameras/CCTV, IoT, drones and digital services. The draft now has eight service tabs: Networking, Cybersecurity, Cameras & CCTV, IoT & smart homes, Drones, Starlink, Websites and Solutions architecture. Each includes existing imagery, useful project considerations and a service-specific enquiry link. Public copy makes no guaranteed availability, response time, partnership, regulatory qualification or completed-project claims. Installation and flight arrangements must still be confirmed per enquiry; a broad service category must not be treated as a promise of immediate on-site delivery.
 
-On-site networking, Starlink installation, drone operations, physical IoT installations and smart-home installations are not advertised. Cybersecurity, managed support and solutions architecture are not offered as dedicated services in this draft. No emergency, daytime, continuous support or guaranteed response promises are made.
+Namecheap is the domain provider. Existing email hosting is still unknown; authoritative DNS delegation has not been independently checked.
 
-The enquiry form now asks for business/project type rather than property type. Postcode is optional because the work is remote. More specific remote business services can be added once the owner confirms their scope; no particular software platform or integration is promised.
+Original logo, motto and lime/purple/charcoal palette are retained. Images are reused from the original repository and treated as illustrative, not completed Gallis Networks work. No new imagery is required for this revision. Social profiles have been offered by the owner but their exact URLs are still awaited; do not guess social handles or add placeholder links.
 
-Original logo is unchanged. The existing laptop photograph is illustrative, not presented as a completed Gallis Networks project. Confirm continued image usage rights before release. No new testimonials, qualifications, partnerships, team claims or project examples have been added.
+The enquiry and three-step process are retained, with expanded service options. Contact form activation, mailbox selection and privacy completion remain outstanding.
 
 ## Enquiry delivery: proposed Formspree setup
 
@@ -65,7 +65,7 @@ No phone number or WhatsApp link is included in the redesigned pages. The owner 
 
 ## Review and release
 
-- Current remote-only, small-project scope and evening/weekend availability are reflected in the draft. Confirm any additional specific service before advertising it.
+- Review the expanded service wording against the owner’s brief. Confirm actual delivery arrangements for each enquiry; public copy must not promise availability that has not been agreed.
 - Complete and verify mailbox, form and privacy setup.
 - Review the design on desktop and mobile. Browser visual testing has not been performed in this environment.
 - Review the pull request; merge only after owner approval. Do not enable auto-merge.
@@ -76,4 +76,4 @@ No phone number or WhatsApp link is included in the redesigned pages. The owner 
 
 Edit index.html for copy, assets/site.css for styling, assets/site.js for behaviour and assets/config.js for public form configuration. Existing Nicepage assets remain unused to keep this review focused and preserve rollback context.
 
-Run `node --check assets/site.js`, `node --check assets/config.js` and `node --test tests/enquiry.test.cjs`.
+Run `node --check assets/site.js`, `node --check assets/config.js` and `node --test tests/*.test.cjs`.
