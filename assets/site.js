@@ -119,10 +119,12 @@
   }
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    if (!ready) { setStatus('Preview only — no enquiry has been sent.', 'ready'); return; }
+    if (!ready) { setStatus('Enquiries are not open yet — no enquiry has been sent.', 'ready'); return; }
     if (sending || !form.reportValidity()) return;
     if (!token) { setStatus('Please complete the security check before sending.', 'error'); return; }
     if (form.elements.namedItem('_gotcha').value) { setStatus('Unable to send this enquiry. Please try again.', 'error'); return; }
+    const previousNextStep = document.querySelector('#enquiry-next-step');
+    if (previousNextStep) previousNextStep.hidden = true;
     sending = true;
     button.disabled = true;
     button.textContent = 'Sending…';
@@ -137,6 +139,8 @@
       });
       if (!response.ok) throw Object.assign(new Error('Submission rejected'), {status: response.status});
       form.reset();
+      const nextStep = document.querySelector('#enquiry-next-step');
+      if (nextStep) nextStep.hidden = false;
       setStatus('Thank you. Your enquiry has been submitted. Gallis Networks will reply by email.', 'success');
     } catch (error) {
       setStatus(error.status === 429

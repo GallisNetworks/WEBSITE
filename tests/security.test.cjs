@@ -1,6 +1,6 @@
 const test=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const crypto=require('node:crypto');
 test('published pages have CSP and structured-data hashes match',()=>{
- const paths=['index.html','privacy.html','terms.html','Home.html','cookie-policy.html',...fs.readdirSync('services').filter(p=>p.endsWith('.html')).map(p=>'services/'+p)];
+ const paths=['index.html','privacy.html','privacy-policy.html','refund-policy.html','legal.html','terms.html','Home.html','cookie-policy.html',...fs.readdirSync('services').filter(p=>p.endsWith('.html')).map(p=>'services/'+p)];
  for(const path of paths){
   const html=fs.readFileSync(path,'utf8');const csp=html.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/)?.[1];
   assert.ok(csp,path);assert.ok(csp.includes("default-src 'self'"),path);assert.ok(csp.includes("base-uri 'none'"),path);
