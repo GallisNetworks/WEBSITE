@@ -11,20 +11,17 @@ This branch is a review draft, not a live release. Do not merge until the outsta
 - GitHub's repository API confirmed has_pages=true and the connected GallisNetworks account's admin/push permissions. The connector did not expose the Pages settings endpoint, so the configured publishing branch/folder could not be independently read. Check Settings → Pages before merging; preserve its current source rather than selecting a new one.
 - Home.html, cookie-policy.html and the old sample blog URLs are retained as redirects with plain links for compatibility. The old blog was placeholder content, not a claimed project portfolio.
 
-## Content for owner confirmation
+## Confirmed current offering
 
-| Area | Draft treatment | Decision needed |
-| --- | --- | --- |
-| Farm, rural, residential and business networking | Main audience and connectivity enquiry topics | Confirm installation and support work available now |
-| Cybersecurity | No dedicated service promises | Confirm scope: reviews, configuration, hardening, monitoring or another offering |
-| IoT / agri-tech | General connectivity planning; no analytics or sensor supply claims | Confirm devices, integration and support available |
-| Starlink | Existing satellite-dish photograph reused; no installation offer or performance promises | Confirm installation scope, mounting and ongoing support |
-| Smart homes | No dedicated service promises | Confirm supported systems and available work |
-| Drones | Not promoted in draft | Confirm services and relevant operational limits before writing copy |
-| Solutions architecture | General project planning only | Confirm consultancy scope |
-| Geography | No towns, radius, national coverage or response-time promises | Confirm on-site service area and remote services |
+Owner update: Namecheap manages the domain. Existing email hosting is still unknown. DNS delegation has not been independently checked; do not assume the registrar hosts the authoritative zone.
 
-Original logo is unchanged. Existing site imagery is illustrative, not presented as completed Gallis Networks projects. Confirm continued image usage rights before release. No new testimonials, qualifications, partnerships, team claims or project examples have been added.
+The business currently takes on small remote projects, including websites, during evenings and weekends. The website now promotes new websites, existing website updates and small remote business projects assessed individually. Farms and rural businesses remain a target audience alongside sole traders, small businesses and individuals.
+
+On-site networking, Starlink installation, drone operations, physical IoT installations and smart-home installations are not advertised. Cybersecurity, managed support and solutions architecture are not offered as dedicated services in this draft. No emergency, daytime, continuous support or guaranteed response promises are made.
+
+The enquiry form now asks for business/project type rather than property type. Postcode is optional because the work is remote. More specific remote business services can be added once the owner confirms their scope; no particular software platform or integration is promised.
+
+Original logo is unchanged. The existing laptop photograph is illustrative, not presented as a completed Gallis Networks project. Confirm continued image usage rights before release. No new testimonials, qualifications, partnerships, team claims or project examples have been added.
 
 ## Enquiry delivery: proposed Formspree setup
 
@@ -64,11 +61,11 @@ References:
 
 ## Phone and WhatsApp
 
-No phone number or WhatsApp link is included in the redesigned pages. Ask for the exact phone model and country variant before selecting an eSIM. A separate business number and WhatsApp Business setup remain unconfigured. Do not add an old number or an unverified replacement during release.
+No phone number or WhatsApp link is included in the redesigned pages. The owner asked for another approach; clarify whether that means an alternative to eSIM/WhatsApp or to the proposed email/form services before selecting anything. A separate business number remains unconfigured. Do not add an old number or an unverified replacement during release.
 
 ## Review and release
 
-- Confirm service scope and geographic coverage, then revise visible copy and enquiry options.
+- Current remote-only, small-project scope and evening/weekend availability are reflected in the draft. Confirm any additional specific service before advertising it.
 - Complete and verify mailbox, form and privacy setup.
 - Review the design on desktop and mobile. Browser visual testing has not been performed in this environment.
 - Review the pull request; merge only after owner approval. Do not enable auto-merge.
