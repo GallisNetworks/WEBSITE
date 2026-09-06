@@ -22,10 +22,14 @@ for p in paths:
  assert 'lang="en-GB"' in s and 'id="main"' in s,p
  for ref in a.refs:
   u=urlsplit(ref)
-  if u.scheme or u.netloc or not u.path:continue
+  if u.scheme or u.netloc:continue
   target=((root/unquote(u.path).lstrip('/')) if u.path.startswith('/') else (p.parent/unquote(u.path))).resolve()
+  if not u.path:target=p
+  if target.is_dir():target=target/'index.html'
   assert target.exists(),f'{p.name}: missing {ref}'
-print(f'PASS: {len(paths)} content pages: local link/file existence, alt attributes, language, main target, unique IDs.')
+  if u.fragment and target.suffix=='.html':
+   linked=Audit();linked.feed(target.read_text());assert unquote(u.fragment) in linked.ids,f'{p.name}: missing fragment {ref}'
+print(f'PASS: {len(paths)} content pages: local links and fragments, alt attributes, language, main target, unique IDs.')
 def lum(h):
  v=[int(h[i:i+2],16)/255 for i in (0,2,4)]
  v=[n/12.92 if n<=.04045 else ((n+.055)/1.055)**2.4 for n in v]

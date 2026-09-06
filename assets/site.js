@@ -119,7 +119,7 @@
   }
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    if (!ready) { setStatus('Preview only — no enquiry has been sent.', 'ready'); return; }
+    if (!ready) { setStatus('Enquiries are not open yet — no enquiry has been sent.', 'ready'); return; }
     if (sending || !form.reportValidity()) return;
     if (!token) { setStatus('Please complete the security check before sending.', 'error'); return; }
     if (form.elements.namedItem('_gotcha').value) { setStatus('Unable to send this enquiry. Please try again.', 'error'); return; }
