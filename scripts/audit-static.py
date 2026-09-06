@@ -11,14 +11,19 @@ class Audit(HTMLParser):
   if tag=='img':self.images.append(a);assert 'alt' in a,'Missing alt attribute'
   for k in ('src','href'):
    if a.get(k):self.refs.append(a[k])
-paths=[root/'index.html',*root.glob('services/*.html'),*[root/p for p in ['privacy-policy.html','cookie-policy.html','terms.html','refund-policy.html','legal.html']]]
+paths=[root/'index.html',*root.glob('services/*.html'),*[root/p for p in ['privacy-policy.html','cookie-policy.html','terms.html','refund-policy.html','legal.html','404.html','thank-you.html']]]
+titles=set()
 for p in paths:
- a=Audit();s=p.read_text();a.feed(s);assert len(a.ids)==len(set(a.ids)),p
+ a=Audit();s=p.read_text();a.feed(s);
+ import re
+ title=re.search(r'<title>(.*?)</title>',s)[1];assert title not in titles,p; titles.add(title)
+ assert 'name="description"' in s,p
+ assert len(a.ids)==len(set(a.ids)),p
  assert 'lang="en-GB"' in s and 'id="main"' in s,p
  for ref in a.refs:
   u=urlsplit(ref)
   if u.scheme or u.netloc or not u.path:continue
-  target=(p.parent/unquote(u.path)).resolve()
+  target=((root/unquote(u.path).lstrip('/')) if u.path.startswith('/') else (p.parent/unquote(u.path))).resolve()
   assert target.exists(),f'{p.name}: missing {ref}'
 print(f'PASS: {len(paths)} content pages: local link/file existence, alt attributes, language, main target, unique IDs.')
 def lum(h):
