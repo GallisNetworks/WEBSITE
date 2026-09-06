@@ -69,3 +69,7 @@ References:
 - https://help.formspree.io/articles/form-and-project-settings/system-limits/
 - https://developers.cloudflare.com/turnstile/plans/
 - https://developers.cloudflare.com/turnstile/reference/content-security-policy/
+
+## Owner setup update
+
+Owner supplied public Formspree endpoint https://formspree.io/f/mgaelqjw and the public Turnstile site key; both are now in assets/config.js. Owner reports CAPTCHA configured in Formspree. This is not yet independently verified by server rejection tests. The mailbox and final privacy setup remain incomplete; enquiriesEnabled, privacyReviewed and serverProtectionVerified remain false. No secret was requested or committed and no test enquiry was sent.
