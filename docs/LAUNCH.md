@@ -19,13 +19,13 @@ The owner has requested networking, cybersecurity, cameras/CCTV, IoT, drones and
 
 Namecheap is the domain provider. Existing email hosting is still unknown; authoritative DNS delegation has not been independently checked.
 
-Original logo and lime/purple/charcoal palette are retained. Three illustrative service images have been replaced with real photography. TikTok, Instagram and Facebook URLs are now supplied or recovered from the original site. See SEARCH-AND-SOCIAL.md and IMAGE-CREDITS.md.
+Original logo and lime/purple/charcoal palette are retained. Three illustrative service images have been replaced with real photography. TikTok, Instagram, Facebook, X and Bluesky URLs are now supplied or recovered from the original site. See SEARCH-AND-SOCIAL.md and IMAGE-CREDITS.md.
 
 The enquiry and three-step process are retained, with expanded service options. Contact form activation, mailbox selection and privacy completion remain outstanding.
 
 ## Enquiry delivery: proposed Formspree setup
 
-Recommendation: Formspree for this static website. It accepts the custom form directly and sends notifications without putting an email password or secret API key in the site. A managed form service avoids maintaining a separate server for a small enquiry flow. A separate backend is an alternative if custom routing, storage or processing requirements later justify it. Provider selection is still the owner's decision.
+Recommendation: Formspree for this static website. It accepts the custom form directly and sends notifications without putting an email password or secret API key in the site. A managed form service avoids maintaining a separate server for a small enquiry flow. A separate backend is an alternative if custom routing, storage or processing requirements later justify it. The owner prefers free and resilient services: start with Formspree Free plus Turnstile Free, with the limits and outstanding activation checks documented in SECURITY.md.
 
 1. Confirm the domain email provider and mailbox first. Do not use an uncreated address in a live form.
 2. Create/select a business-owned Formspree account and form. Choose and verify the business mailbox as its notification recipient in Formspree. The website's contactEmail setting DOES NOT configure the recipient in Formspree.

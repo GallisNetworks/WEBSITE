@@ -29,19 +29,27 @@ No meta-keyword stuffing, automated backlink schemes, fabricated FAQs or promise
 - TikTok: https://www.tiktok.com/@gallisnetworks — supplied profile screenshot and original website.
 - Instagram: https://www.instagram.com/_gallis_networks_/ — supplied profile screenshot.
 - Facebook: https://www.facebook.com/people/Gallis-Networks/61572970461203/ — exact Page link in the original website, matching the supplied branded search result. Live Facebook content could not be read from this environment; verify its public Page/plugin visibility during review.
+- X: https://x.com/GallisNetworks — owner screenshot.
+- Bluesky: https://bsky.app/profile/gallisnetworks.bsky.social — owner screenshot; public API confirmed DID did:plc:vfgfspxjsta2ei3aat4ylqsq.
 - WhatsApp intentionally absent until the owner provides the business number.
 
-## Three social panels
+## Five social panels
 
-The homepage has three side-by-side cards on wide screens, stacking on mobile. All have real profile links.
+The homepage has five cards arranged in three columns on wide screens, two on tablets and one on phones. All have real profile links.
 
 TikTok: a visitor can load the official creator-profile embed. TikTok supplies up to ten recent public videos; it is not guaranteed to select exactly one latest post or refresh within a specific interval. It updates from TikTok when loaded without manually replacing post URLs.
 
 Facebook: a visitor can load the Page timeline plugin. Facebook controls availability, order and rendering; privacy, login and Page restrictions can prevent display. The external feed has not been visually verified here, and the direct profile link remains available.
 
-Instagram: currently a real profile link, not a fabricated or auto-updating feed. An authorised feed integration has not been connected. To display exactly one recent post per platform consistently, choose a managed feed provider supporting these three account types, connect the actual accounts, confirm refresh cadence/limits and provide its public embed IDs/code. Alternatively build an authenticated backend with platform-approved APIs. Account tokens must remain in the backend/provider; do not put them in browser code or the public repository. The plugin catalogue was checked; the returned analytics/scheduling apps did not provide this website-feed capability.
+Instagram: currently a real profile link, not a fabricated or auto-updating feed. An authorised feed integration has not been connected. To display exactly one recent post per platform consistently, choose a managed feed provider supporting the required account types, connect the actual accounts, confirm refresh cadence/limits and provide its public embed IDs/code. Alternatively build an authenticated backend with platform-approved APIs. Account tokens must remain in the backend/provider; do not put them in browser code or the public repository. The plugin catalogue was checked; the returned analytics/scheduling apps did not provide this website-feed capability.
 
-No browser scraping, embedded login prompts, or fake latest-post timestamps. External content loads only after a visitor chooses it, and can be removed. Removing an embed does not delete cookies already set by the platform. Complete the final privacy notice to match the chosen provider before release.
+X: optional official timeline widget in an isolated helper frame, with a direct profile link. Timeline rendering is controlled by X and is not verified in a real browser here. No paid X API integration has been enabled.
+
+Bluesky: loads the latest three eligible public posts from the public author-feed API on visitor request. Uses the account's verified DID, excludes reposts, renders text with textContent, and accepts image URLs only from the Bluesky CDN. Refreshes every five minutes while visible. Requests time out after 12 seconds; previously loaded posts survive refresh failures, and removing the feed aborts pending work. A live API read returned HTTP 200 and real posts on 6 September 2026.
+
+Instagram professional account confirmed by owner. This does not itself authorise API access. A server-side Meta connection or supported provider remains necessary; no token is exposed in this static site.
+
+No browser scraping or fake latest-post timestamps. External content loads only after a visitor chooses it, and can be removed. Removing an embed does not delete cookies already set by the platform. Complete the final privacy notice to match the chosen provider before release.
 
 ## Sources checked 6 September 2026
 

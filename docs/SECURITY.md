@@ -32,9 +32,40 @@ Review two-factor authentication and recovery for GitHub, Namecheap, the mailbox
 
 ## Social feed status
 
-TikTok and Facebook have optional official embeds and persistent profile links. Their actual post rendering has not been browser-verified; platform privacy, login and embed restrictions may prevent display even when a frame loads. Instagram remains a profile link until a supported feed integration is selected. X needs the owner's exact profile URL before its fourth panel can be connected. Do not promise that all four auto-updating feeds work yet.
+TikTok and Facebook have optional official embeds and persistent profile links. Their actual post rendering has not been browser-verified; platform privacy, login and embed restrictions may prevent display even when a frame loads. Instagram remains a profile link until a supported feed integration is selected. X and Bluesky URLs are now supplied. X has an optional isolated timeline widget. Bluesky has a working public-API integration with live API response verified, bounded requests and safe text rendering. Do not promise that all five auto-updating feeds work yet.
 
 ## References checked 6 September 2026
 
 - [Formspree Turnstile setup](https://help.formspree.io/articles/form-and-project-settings/protecting-your-forms-with-cloudflare-turnstile/)
 - [Cloudflare server-side validation](https://developers.cloudflare.com/turnstile/get-started/server-side-validation/)
+
+## Follow-up review — 6 September 2026
+
+Fixed in this revision:
+- Local TikTok and X helper frames no longer combine allow-scripts with allow-same-origin, preventing provider scripts from gaining the parent page's origin through those frames. The Facebook frame uses a different origin.
+- Feed errors/timeouts retain direct profile links. Bluesky text cannot become executable markup; only expected authors and permitted CDN image URLs are rendered. Pending results cannot reinsert content after a visitor removes the feed.
+- Form requests omit cookies and refuse redirects. HTTP 429 gets an explicit quota/rate-limit message and email fallback, with entered details retained.
+- Challenge lifecycle messages use a separate status region so they cannot overwrite a successful receipt or an uncertain-delivery warning.
+- CSP now starts with default-src self on normal pages. Inline JavaScript/eval remain blocked. Inline styles are permitted for widget compatibility; this is not a strict nonce-based CSP. Helpers have a limited policy and rely on their parent sandbox for origin isolation.
+- Static CSP hashes can be regenerated using python scripts/update-csp.py. Security tests verify them.
+- Local environment and private-key file patterns are ignored by Git as an accidental-commit guard.
+
+Evidence and limits:
+- Connected GitHub identity rechecked: GallisNetworks; repository permission admin. Reading main branch protection returned HTTP 403 (integration lacks access), so protection rules are unverified and unchanged.
+- Live www.gallisnetworks.com returned HTTP 200 with certificate verification passing. Its current response lacked CSP, HSTS, X-Content-Type-Options, X-Frame-Options and Referrer-Policy headers. The live site remains unchanged.
+- Targeted scan of tracked text files found no matches for private-key blocks, common GitHub token prefixes or AWS access-key IDs. This is not a complete historical or credential audit.
+- Automated tests cover challenge expiry/failure, token reuse, provider failure/429, timeout, duplicate submission, delivery-message preservation, feed isolation, hostile text, bad URLs, malformed data, cancellation and refresh failure.
+- Browser embed rendering is unverified: the plain static review project has no compatible supervised browser preview in this environment.
+- Formspree, Cloudflare, Namecheap, mailbox, Jotform and social account settings have not been accessed. No CAPTCHA server setting, secret, DNS record, WAF rule, account MFA, rate-limit configuration or email routing has been changed.
+
+## Free starting configuration
+
+Use GitHub Pages plus Formspree Free and Cloudflare Turnstile Free for initial low-volume enquiries, subject to setup and delivery testing. Formspree Free currently starts at 50 submissions/month with 30-day submission history; it sends quota notifications. Monitor these limits and retain the domain-mailbox fallback rather than treating the free allowance as unlimited capacity.
+
+Turnstile Free permits unlimited challenges and can be used without moving DNS or the website to Cloudflare. Add production hostnames, keep the secret solely in the Formspree dashboard, and validate server rejection before enabling enquiries. Neither service has been connected yet. A professional receiving/replying mailbox remains a separate decision and is not included in this free website/form combination.
+
+References:
+- https://help.formspree.io/articles/account-management/account-limits/
+- https://help.formspree.io/articles/form-and-project-settings/system-limits/
+- https://developers.cloudflare.com/turnstile/plans/
+- https://developers.cloudflare.com/turnstile/reference/content-security-policy/

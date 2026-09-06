@@ -78,10 +78,13 @@
     /^[a-zA-Z0-9]{6,32}$/.test(config.formspreeId || '') &&
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@gallisnetworks\.com$/i.test(config.contactEmail || '');
   const setStatus = (text, state) => { status.textContent = text; status.dataset.state = state; };
+  const challengeStatus = document.querySelector('#challenge-status');
+  const setChallengeStatus = (text) => { if (challengeStatus) challengeStatus.textContent = text; };
   let sending = false;
   let token = '';
   let widgetId;
   const invalidate = () => { token = ''; button.disabled = true; };
+  const expired = () => { invalidate(); setChallengeStatus('Please complete a fresh security check before sending.'); };
   if (ready) {
     form.dataset.ready = 'true';
     button.disabled = true;
@@ -96,7 +99,7 @@
     script.async = true;
     const unavailable = () => {
       invalidate();
-      setStatus('The security check is unavailable. Reload this page or use the email link. Your details have not been sent.', 'error');
+      setChallengeStatus('The security check is unavailable. Reload this page or use the email link.');
     };
     const loadTimeout = window.setTimeout(unavailable, 15000);
     script.onerror = () => { window.clearTimeout(loadTimeout); unavailable(); };
@@ -105,10 +108,10 @@
       try {
         widgetId = window.turnstile.render('#turnstile-container', {
           sitekey: config.turnstileSiteKey,
-          callback: (value) => { token = value; button.disabled = sending || !token; },
-          'expired-callback': invalidate,
+          callback: (value) => { token = typeof value === 'string' ? value : ''; button.disabled = sending || !token; setChallengeStatus(token ? 'Security check complete.' : 'Please complete the security check.'); },
+          'expired-callback': expired,
           'error-callback': () => { unavailable(); },
-          'timeout-callback': invalidate
+          'timeout-callback': expired
         });
       } catch (_) { unavailable(); }
     };
@@ -130,13 +133,15 @@
       const data = new FormData(form);
       data.set('cf-turnstile-response', token);
       const response = await fetch('https://formspree.io/f/' + config.formspreeId, {
-        method: 'POST', body: data, headers: { Accept: 'application/json' }, signal: controller.signal
+        method: 'POST', credentials: 'omit', redirect: 'error', body: data, headers: { Accept: 'application/json' }, signal: controller.signal
       });
-      if (!response.ok) throw new Error('Submission rejected');
+      if (!response.ok) throw Object.assign(new Error('Submission rejected'), {status: response.status});
       form.reset();
       setStatus('Thank you. Your enquiry has been submitted. Gallis Networks will reply by email.', 'success');
     } catch (error) {
-      setStatus(error.name === 'AbortError'
+      setStatus(error.status === 429
+        ? 'The enquiry service has reached a sending limit. Your details are still here. Please use the email link or try again later.'
+        : error.name === 'AbortError'
         ? 'The request timed out, so we cannot confirm receipt. Your details are still here. You can retry or use the email link.'
         : 'We could not confirm your enquiry was sent. Your details are still here. Please try again or use the email link.', 'error');
     } finally {

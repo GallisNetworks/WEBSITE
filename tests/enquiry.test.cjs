@@ -9,7 +9,7 @@ function setup(config = {}, fetchImpl = async () => ({ok: true})) {
   const button = {disabled: true};
   const form = {dataset: {}, elements: {namedItem: () => ({value: ''})},
     reportValidity: () => true, reset() { resets++; }, addEventListener(event, fn) { if (event === 'submit') submit = fn; }};
-  const nodes = {'#enquiry-form': form, '#submit-enquiry': button, '#form-status': status, '#property': {}, '#direct-email': {hidden: true}};
+  const nodes = {'#enquiry-form': form, '#submit-enquiry': button, '#form-status': status, '#property': {}, '#challenge-status': {}, '#direct-email': {hidden: true}};
   let timeout; let challenge; let script;
   const window = {turnstile: {render(_, options) { challenge = options; options.callback('test-token'); return 'widget'; }, reset() {}}, GALLIS_CONFIG: config, setTimeout(fn) { timeout = fn; return 1; }, clearTimeout() {}};
   vm.runInNewContext(source, {document: {head: {appendChild(node) { script = node; node.onload(); }}, createElement: () => ({}), body: {classList: {add() {}}}, querySelector: (id) => nodes[id], querySelectorAll: () => []}, window,
@@ -56,4 +56,17 @@ test('expired challenge and failed script never submit', async () => {
 });
 test('used token cannot be submitted again without fresh verification', async () => {
   const app = setup(ready); await app.submit(); await app.submit(); assert.equal(app.calls(), 1);
+});
+
+test('provider quota errors retain input and explain the email fallback', async () => {
+ const app = setup(ready, async () => ({ok:false,status:429}));
+ await app.submit(); assert.equal(app.resets(),0); assert.match(app.status.textContent,/sending limit/);
+});
+test('challenge errors after delivery cannot erase the receipt', async () => {
+ const app = setup(ready); await app.submit(); app.fail();
+ assert.equal(app.status.dataset.state,'success'); assert.match(app.nodes['#challenge-status'].textContent,/unavailable/);
+});
+test('submission does not forward cookies or follow redirects', async () => {
+ const app=setup(ready,async (_,options)=>{assert.equal(options.credentials,'omit');assert.equal(options.redirect,'error');return {ok:true};});
+ await app.submit(); assert.equal(app.calls(),1);
 });
