@@ -23,8 +23,12 @@
       button.textContent = 'Load ' + names[platform] + ' posts';
       button.setAttribute('aria-expanded', 'false');
     };
+    window.addEventListener('gallis:privacy-change', () => {
+      if (active && !window.GALLIS_PRIVACY?.allowed(platform)) { restore(); status.textContent = 'Permission withdrawn. Feed removed.'; }
+    });
     async function refreshBluesky(id) {
       if (!active || id !== generation) return;
+      if (!window.GALLIS_PRIVACY?.allowed(platform)) { restore(); return; }
       if (document.hidden) { timer = window.setTimeout(() => refreshBluesky(id), 300000); return; }
       const request = new AbortController(); controller = request;
       const timeout = window.setTimeout(() => request.abort(), 12000);
@@ -66,6 +70,10 @@
     }
     button.addEventListener('click', () => {
       if (active) { restore(); status.textContent = 'Feed removed. You can still open the profile directly.'; return; }
+      if (!window.GALLIS_PRIVACY?.allowed(platform)) {
+        status.textContent = 'Allow this provider in Cookie settings, then select Load posts.';
+        window.GALLIS_PRIVACY?.open(); return;
+      }
       active = true; const id = ++generation;
       button.textContent = 'Remove loaded feed'; button.setAttribute('aria-expanded', 'true');
       status.textContent = 'Loading ' + names[platform] + ' posts…';
@@ -79,7 +87,10 @@
       // Never combine scripts and same-origin access for local helper documents.
       frame.setAttribute('sandbox', 'allow-scripts allow-popups allow-popups-to-escape-sandbox' + (platform === 'facebook' ? ' allow-same-origin' : ''));
       const fallback = () => { if (active && id === generation) status.textContent = 'If posts do not appear, use the profile link below. The platform may require sign-in or restrict embedded posts.'; };
-      frame.addEventListener('load', () => { window.clearTimeout(timer); fallback(); });
+      frame.addEventListener('load', () => {
+        if (active && id === generation && platform !== 'facebook' && window.GALLIS_PRIVACY?.allowed(platform)) frame.contentWindow?.postMessage('gallis:load-consented-feed', '*');
+        window.clearTimeout(timer); fallback();
+      });
       frame.addEventListener('error', () => { window.clearTimeout(timer); fallback(); });
       timer = window.setTimeout(fallback, 12000);
       feed.replaceChildren(frame);

@@ -8,7 +8,8 @@ class Node {
  setAttribute(k,v){this.attributes[k]=v;}
  addEventListener(k,v){this.listeners[k]=v;}
 }
-function setup(fetchImpl=async()=>({ok:true,json:async()=>({feed:[]})})){
+function setup(fetchImpl=async()=>({ok:true,json:async()=>({feed:[]})}), permitted=true){
+ const listeners={};let opened=0;const consent={allowed:()=>permitted,open:()=>opened++};
  const nodes={};let calls=0;const timers=new Map();let id=0;
  for(const platform of ['tiktok','facebook','x','bluesky']){
   const button=new Node('button');button.dataset.loadFeed=platform;
@@ -16,8 +17,8 @@ function setup(fetchImpl=async()=>({ok:true,json:async()=>({feed:[]})})){
   nodes[platform]={button,feed,status:new Node()};
  }
  const document={hidden:false,querySelectorAll:()=>Object.values(nodes).map(n=>n.button),querySelector:s=>{const p=s.match(/="([^"]+)"/)[1];return s.includes('status')?nodes[p].status:nodes[p].feed;},createElement:tag=>new Node(tag)};
- vm.runInNewContext(fs.readFileSync('assets/social.js','utf8'),{document,window:{setTimeout(fn,delay){timers.set(++id,{fn,delay});return id;},clearTimeout(n){timers.delete(n);}},AbortController,URL,fetch:async(...args)=>{calls++;return fetchImpl(...args);}});
- return {nodes,timers,document,calls:()=>calls,click:p=>nodes[p].button.listeners.click()};
+ vm.runInNewContext(fs.readFileSync('assets/social.js','utf8'),{document,window:{GALLIS_PRIVACY:consent,addEventListener(k,fn){(listeners[k] ||= []).push(fn);},setTimeout(fn,delay){timers.set(++id,{fn,delay});return id;},clearTimeout(n){timers.delete(n);}},AbortController,URL,fetch:async(...args)=>{calls++;return fetchImpl(...args);}});
+ return {nodes,timers,document,opened:()=>opened,revoke(){permitted=false;for(const fn of listeners['gallis:privacy-change']||[])fn();},calls:()=>calls,click:p=>nodes[p].button.listeners.click()};
 }
 function item(text='<img src=x onerror=alert(1)>',thumb='javascript:alert(1)'){
  return {post:{uri:'at://'+actor+'/app.bsky.feed.post/abc',author:{did:actor},record:{text,createdAt:'2026-09-01T12:00:00Z'},embed:{images:[{thumb}]}}};
@@ -56,4 +57,12 @@ test('malformed feed and posts from other authors never replace fallback',async(
 });
 test('hidden page pauses automatic feed requests',async()=>{
  const app=setup();app.document.hidden=true;await app.click('bluesky');assert.equal(app.calls(),0);
+});
+
+test('denied consent prevents frames and API requests; revocation removes loaded frames',async()=>{
+ const denied=setup(undefined,false);for(const p of ['tiktok','facebook','x','bluesky'])await denied.click(p);assert.equal(denied.calls(),0);assert.equal(denied.opened(),4);assert.equal(denied.nodes.x.feed.childNodes[0].textContent,'Profile fallback');
+ const allowed=setup();allowed.click('x');allowed.revoke();assert.equal(allowed.nodes.x.feed.childNodes[0].textContent,'Profile fallback');
+});
+test('revocation aborts an in-flight API request and ignores its result',async()=>{
+ let finish,signal;const app=setup((u,o)=>{signal=o.signal;return new Promise(resolve=>finish=resolve);});const pending=app.click('bluesky');app.revoke();assert.equal(signal.aborted,true);finish({ok:true,json:async()=>({feed:[item()]})});await pending;assert.equal(app.nodes.bluesky.feed.childNodes[0].textContent,'Profile fallback');
 });
