@@ -73,25 +73,52 @@
   const requestedService = new URLSearchParams(window.location?.search || '').get('service');
   const serviceSelect = document.querySelector('#service');
   if (requestedService && serviceSelect && Array.from(serviceSelect.options).some(option => option.value === requestedService)) serviceSelect.value = requestedService;
-  const ready = config.enquiriesEnabled === true && config.privacyReviewed === true &&
+  const ready = config.enquiriesEnabled === true && config.privacyReviewed === true && config.serverProtectionVerified === true &&
+    /^[a-zA-Z0-9_-]{20,100}$/.test(config.turnstileSiteKey || '') &&
     /^[a-zA-Z0-9]{6,32}$/.test(config.formspreeId || '') &&
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@gallisnetworks\.com$/i.test(config.contactEmail || '');
   const setStatus = (text, state) => { status.textContent = text; status.dataset.state = state; };
+  let sending = false;
+  let token = '';
+  let widgetId;
+  const invalidate = () => { token = ''; button.disabled = true; };
   if (ready) {
     form.dataset.ready = 'true';
-    button.disabled = false;
+    button.disabled = true;
     button.textContent = 'Send enquiry ↗';
-    setStatus('Ready when you are. Tell us about your project above.', 'ready');
+    setStatus('Complete the security check before sending your enquiry.', 'ready');
     const email = document.querySelector('#direct-email');
     email.href = 'mailto:' + config.contactEmail;
     email.textContent = 'Or email ' + config.contactEmail;
     email.hidden = false;
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    script.async = true;
+    const unavailable = () => {
+      invalidate();
+      setStatus('The security check is unavailable. Reload this page or use the email link. Your details have not been sent.', 'error');
+    };
+    const loadTimeout = window.setTimeout(unavailable, 15000);
+    script.onerror = () => { window.clearTimeout(loadTimeout); unavailable(); };
+    script.onload = () => {
+      window.clearTimeout(loadTimeout);
+      try {
+        widgetId = window.turnstile.render('#turnstile-container', {
+          sitekey: config.turnstileSiteKey,
+          callback: (value) => { token = value; button.disabled = sending || !token; },
+          'expired-callback': invalidate,
+          'error-callback': () => { unavailable(); },
+          'timeout-callback': invalidate
+        });
+      } catch (_) { unavailable(); }
+    };
+    document.head.appendChild(script);
   }
-  let sending = false;
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!ready) { setStatus('Preview only — no enquiry has been sent.', 'ready'); return; }
     if (sending || !form.reportValidity()) return;
+    if (!token) { setStatus('Please complete the security check before sending.', 'error'); return; }
     if (form.elements.namedItem('_gotcha').value) { setStatus('Unable to send this enquiry. Please try again.', 'error'); return; }
     sending = true;
     button.disabled = true;
@@ -100,8 +127,10 @@
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 20000);
     try {
+      const data = new FormData(form);
+      data.set('cf-turnstile-response', token);
       const response = await fetch('https://formspree.io/f/' + config.formspreeId, {
-        method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' }, signal: controller.signal
+        method: 'POST', body: data, headers: { Accept: 'application/json' }, signal: controller.signal
       });
       if (!response.ok) throw new Error('Submission rejected');
       form.reset();
@@ -112,7 +141,9 @@
         : 'We could not confirm your enquiry was sent. Your details are still here. Please try again or use the email link.', 'error');
     } finally {
       window.clearTimeout(timeout);
-      sending = false; button.disabled = false; button.textContent = 'Send enquiry ↗'; status.focus();
+      sending = false; invalidate();
+      try { window.turnstile.reset(widgetId); } catch (_) { /* Keep sending disabled. */ }
+      button.textContent = 'Send enquiry ↗'; status.focus();
     }
   });
 })();

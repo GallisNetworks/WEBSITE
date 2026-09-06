@@ -4,5 +4,8 @@ window.GALLIS_CONFIG = Object.freeze({
   formspreeId: '',
   contactEmail: '',
   enquiriesEnabled: false,
-  privacyReviewed: false
+  privacyReviewed: false,
+  turnstileSiteKey: '',
+  // Only set after Formspree rejects missing/invalid CAPTCHA tokens in server tests.
+  serverProtectionVerified: false
 });
