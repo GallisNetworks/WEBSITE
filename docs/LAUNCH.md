@@ -13,13 +13,13 @@ This branch is a review draft, not a live release. Do not merge until the outsta
 
 ## Brand and service direction — updated owner brief
 
-Restore the existing motto: “Resilient solutions for secure networking”. The owner wants the established business identity and broad service coverage retained, with no “small projects” or evening/weekend framing in public copy.
+The owner has shortened the motto to “Resilient networking”. The owner wants the established business identity and broad service coverage retained, with no “small projects” or evening/weekend framing in public copy.
 
 The owner has requested networking, cybersecurity, cameras/CCTV, IoT, drones and digital services. The draft now has eight service tabs: Networking, Cybersecurity, Cameras & CCTV, IoT & smart homes, Drones, Starlink, Websites and Solutions architecture. Each includes existing imagery, useful project considerations and a service-specific enquiry link. Public copy makes no guaranteed availability, response time, partnership, regulatory qualification or completed-project claims. Installation and flight arrangements must still be confirmed per enquiry; a broad service category must not be treated as a promise of immediate on-site delivery.
 
 Namecheap is the domain provider. Existing email hosting is still unknown; authoritative DNS delegation has not been independently checked.
 
-Original logo, motto and lime/purple/charcoal palette are retained. Images are reused from the original repository and treated as illustrative, not completed Gallis Networks work. No new imagery is required for this revision. Social profiles have been offered by the owner but their exact URLs are still awaited; do not guess social handles or add placeholder links.
+Original logo and lime/purple/charcoal palette are retained. Three illustrative service images have been replaced with real photography. TikTok, Instagram and Facebook URLs are now supplied or recovered from the original site. See SEARCH-AND-SOCIAL.md and IMAGE-CREDITS.md.
 
 The enquiry and three-step process are retained, with expanded service options. Contact form activation, mailbox selection and privacy completion remain outstanding.
 
@@ -33,7 +33,7 @@ Recommendation: Formspree for this static website. It accepts the custom form di
 4. Enable appropriate server-side spam protection and permitted-domain restrictions if supported by the selected plan. The page includes the _gotcha honeypot, but client-side checks alone are not spam protection. If a challenge is required, integrate and test the provider-supported challenge before launch; the current plain fetch implementation does not render an interactive CAPTCHA.
 5. Put only the public form ID into assets/config.js → formspreeId. The endpoint https://formspree.io/f/FORM_ID is intended to be public; account/API credentials are not.
 6. Set contactEmail to the chosen, verified @gallisnetworks.com address. The input named email supplies the customer's Reply-To address on Formspree notifications.
-7. Replace the preview privacy page with the final business notice covering the actual providers, contact, purpose/lawful basis, retention, rights and any international transfers. Review the existing terms PDF separately; it is retained unchanged but not linked from the redesign.
+7. Replace the preview privacy page with the final business notice covering the actual providers, contact, purpose/lawful basis, retention, rights and any international transfers. The old terms PDF is removed from the release and retained in Git history. Complete the noindex HTML terms page before launch.
 8. Set privacyReviewed and enquiriesEnabled to true only after completing configuration. Blank, invalid or incomplete configuration keeps submission disabled. Do not treat these frontend flags as access controls.
 9. Send a clearly labelled test enquiry after authorisation, check every field arrives, and reply from the domain mailbox. Confirm the recipient sees the domain address, not Gmail. Verify delivery with an external mailbox and check spam folders. Do not enable customer autoresponders until their sender/domain configuration is confirmed.
 10. Test success, rejection, offline/timeout, keyboard access and mobile layout. No real email has been sent by the automated checks in this branch.
@@ -77,3 +77,7 @@ No phone number or WhatsApp link is included in the redesigned pages. The owner 
 Edit index.html for copy, assets/site.css for styling, assets/site.js for behaviour and assets/config.js for public form configuration. Existing Nicepage assets remain unused to keep this review focused and preserve rollback context.
 
 Run `node --check assets/site.js`, `node --check assets/config.js` and `node --test tests/*.test.cjs`.
+
+## Search and social release checks
+
+Follow SEARCH-AND-SOCIAL.md before claiming indexing or automatic cross-platform feed delivery. The new service pages and sitemap need a live release before submission to search engines. The Instagram automatic feed is not yet connected.

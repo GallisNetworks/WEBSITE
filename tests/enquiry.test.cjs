@@ -13,7 +13,7 @@ function setup(config = {}, fetchImpl = async () => ({ok: true})) {
   let timeout;
   const window = {GALLIS_CONFIG: config, setTimeout(fn) { timeout = fn; return 1; }, clearTimeout() {}};
   vm.runInNewContext(source, {document: {body: {classList: {add() {}}}, querySelector: (id) => nodes[id], querySelectorAll: () => []}, window,
-    AbortController, FormData: class {}, fetch: async (...args) => { calls++; return fetchImpl(...args); }});
+    URLSearchParams, AbortController, FormData: class {}, fetch: async (...args) => { calls++; return fetchImpl(...args); }});
   return {status, button, form, nodes, submit: () => submit({preventDefault() {}}), calls: () => calls, resets: () => resets, timeout: () => timeout()};
 }
 const ready = {formspreeId: 'abcdefgh', contactEmail: 'hello@gallisnetworks.com', enquiriesEnabled: true, privacyReviewed: true};

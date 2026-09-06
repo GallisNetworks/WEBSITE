@@ -70,6 +70,9 @@
   document.querySelectorAll('[data-service]').forEach((link) => link.addEventListener('click', () => {
     document.querySelector('#service').value = link.dataset.service;
   }));
+  const requestedService = new URLSearchParams(window.location?.search || '').get('service');
+  const serviceSelect = document.querySelector('#service');
+  if (requestedService && serviceSelect && Array.from(serviceSelect.options).some(option => option.value === requestedService)) serviceSelect.value = requestedService;
   const ready = config.enquiriesEnabled === true && config.privacyReviewed === true &&
     /^[a-zA-Z0-9]{6,32}$/.test(config.formspreeId || '') &&
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@gallisnetworks\.com$/i.test(config.contactEmail || '');
