@@ -1,0 +1,10 @@
+# Local credentials and private deployment configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+.wrangler/
+node_modules/

@@ -1,0 +1,72 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const vm = require('node:vm');
+const fs = require('node:fs');
+const source = fs.readFileSync('assets/site.js', 'utf8');
+function setup(config = {}, fetchImpl = async () => ({ok: true})) {
+  let submit; let calls = 0; let resets = 0;
+  const status = {dataset: {}, focus() {}};
+  const button = {disabled: true};
+  const form = {dataset: {}, elements: {namedItem: () => ({value: ''})},
+    reportValidity: () => true, reset() { resets++; }, addEventListener(event, fn) { if (event === 'submit') submit = fn; }};
+  const nodes = {'#enquiry-form': form, '#submit-enquiry': button, '#form-status': status, '#property': {}, '#challenge-status': {}, '#direct-email': {hidden: true}};
+  let timeout; let challenge; let script;
+  const window = {turnstile: {render(_, options) { challenge = options; options.callback('test-token'); return 'widget'; }, reset() {}}, GALLIS_CONFIG: config, setTimeout(fn) { timeout = fn; return 1; }, clearTimeout() {}};
+  vm.runInNewContext(source, {document: {head: {appendChild(node) { script = node; node.onload(); }}, createElement: () => ({}), body: {classList: {add() {}}}, querySelector: (id) => nodes[id], querySelectorAll: () => []}, window,
+    URLSearchParams, AbortController, FormData: class { set(name, value) { assert.equal(name, 'cf-turnstile-response'); assert.equal(value, 'test-token'); } }, fetch: async (...args) => { calls++; return fetchImpl(...args); }});
+  return {expire: () => challenge['expired-callback'](), fail: () => script.onerror(), status, button, form, nodes, submit: () => submit({preventDefault() {}}), calls: () => calls, resets: () => resets, timeout: () => timeout()};
+}
+const ready = {formspreeId: 'abcdefgh', contactEmail: 'hello@gallisnetworks.com', enquiriesEnabled: true, privacyReviewed: true, serverProtectionVerified: true, turnstileSiteKey: 'production-public-key-12345'};
+test('draft and incomplete configuration never send personal details', async () => {
+  for (const config of [{}, {...ready, enquiriesEnabled: false}, {...ready, privacyReviewed: false}, {...ready, contactEmail: 'unconfigured@example.com'}, {...ready, formspreeId: '../other'}]) {
+    const app = setup(config); await app.submit(); assert.equal(app.calls(), 0); assert.equal(app.button.disabled, true);
+  }
+});
+test('valid submission posts to intended provider and resets only on success', async () => {
+  const app = setup(ready, async (url, options) => {assert.equal(url, 'https://formspree.io/f/abcdefgh'); assert.equal(options.method, 'POST'); assert.equal(options.headers.Accept, 'application/json'); return {ok: true};});
+  assert.equal(app.nodes['#direct-email'].href, 'mailto:hello@gallisnetworks.com');
+  await app.submit(); assert.equal(app.calls(), 1); assert.equal(app.resets(), 1); assert.equal(app.status.dataset.state, 'success'); assert.equal(app.button.disabled, true);
+});
+test('server failure and network error preserve customer input and allow retry', async () => {
+  for (const impl of [async () => ({ok: false}), async () => {throw new Error('offline');}]) {
+    const app = setup(ready, impl); await app.submit(); assert.equal(app.resets(), 0); assert.equal(app.status.dataset.state, 'error'); assert.equal(app.button.disabled, true);
+  }
+});
+test('double submission sends once while pending', async () => {
+  let finish; const app = setup(ready, () => new Promise(resolve => {finish = resolve;}));
+  const pending = app.submit(); await app.submit(); assert.equal(app.calls(), 1); assert.equal(app.button.disabled, true);
+  finish({ok: true}); await pending;
+});
+test('invalid input does not submit', async () => { const app = setup(ready); app.form.reportValidity = () => false; await app.submit(); assert.equal(app.calls(), 0); });
+test('timeout reports uncertain receipt and keeps input', async () => {
+  const app = setup(ready, (_, {signal}) => new Promise((_, reject) => signal.addEventListener('abort', () => reject(Object.assign(new Error('timeout'), {name: 'AbortError'})))));
+  const pending = app.submit(); app.timeout(); await pending; assert.equal(app.resets(), 0); assert.match(app.status.textContent, /cannot confirm receipt/); assert.equal(app.button.disabled, true);
+});
+
+test('missing server verification or site key fails closed', async () => {
+  for (const config of [{...ready, serverProtectionVerified: false}, {...ready, turnstileSiteKey: ''}]) {
+    const app = setup(config); await app.submit(); assert.equal(app.calls(), 0);
+  }
+});
+test('expired challenge and failed script never submit', async () => {
+  for (const action of ['expire', 'fail']) {
+    const app = setup(ready); app[action](); await app.submit();
+    assert.equal(app.calls(), 0); assert.equal(app.button.disabled, true);
+  }
+});
+test('used token cannot be submitted again without fresh verification', async () => {
+  const app = setup(ready); await app.submit(); await app.submit(); assert.equal(app.calls(), 1);
+});
+
+test('provider quota errors retain input and explain the email fallback', async () => {
+ const app = setup(ready, async () => ({ok:false,status:429}));
+ await app.submit(); assert.equal(app.resets(),0); assert.match(app.status.textContent,/sending limit/);
+});
+test('challenge errors after delivery cannot erase the receipt', async () => {
+ const app = setup(ready); await app.submit(); app.fail();
+ assert.equal(app.status.dataset.state,'success'); assert.match(app.nodes['#challenge-status'].textContent,/unavailable/);
+});
+test('submission does not forward cookies or follow redirects', async () => {
+ const app=setup(ready,async (_,options)=>{assert.equal(options.credentials,'omit');assert.equal(options.redirect,'error');return {ok:true};});
+ await app.submit(); assert.equal(app.calls(),1);
+});
